@@ -10,19 +10,26 @@ class Calculator(QWidget):
     def __init__(self):
 
         super().__init__()
-        self.initUI()
         self.status = 0  # 0: cleared; 1: calculating; 2: calculated.
-        self.currentOperator = ''
+        self.currentInput = ''
         self.result = 0
+        self.text_shown = None
+        self.message_show = None
+        self.initUI()
 
     def initUI(self):
 
         self.setGeometry(300, 300, 500, 800)
         self.setWindowTitle('Calculator')
         # self.setWindowIcon(QIcon('xdbcb8.ico'))
+
         self.text_shown = QLineEdit('0', self)  # show expression and result.
         self.text_shown.setGeometry(20, 30, 400, 50)
         self.text_shown.setEnabled(False)
+
+        self.message_show = QLineEdit('', self)  # show message when input is wrong.
+        self.message_show.setGeometry(50, 350, 270, 40)
+        self.message_show.setEnabled(False)
 
         for i in range(3):
             for j in range(3):
@@ -30,6 +37,10 @@ class Calculator(QWidget):
                 btn_num = QPushButton(str(num), self)
                 btn_num.setGeometry(50 + j * 100, 150 + i * 50, 70, 30)
                 btn_num.clicked.connect(self.show_message)
+
+        btn_operator = QPushButton('.', self)
+        btn_operator.setGeometry(50, 300, 70, 30)
+        btn_operator.clicked.connect(self.show_message)
 
         btn_operator = QPushButton('0', self)
         btn_operator.setGeometry(150, 300, 70, 30)
@@ -52,11 +63,11 @@ class Calculator(QWidget):
         btn_operator.clicked.connect(self.show_message)
 
         btn_operator = QPushButton('=', self)
-        btn_operator.setGeometry(400, 350, 70, 30)
+        btn_operator.setGeometry(250, 300, 70, 30)
         btn_operator.clicked.connect(self.show_message)
 
         btn_operator = QPushButton('clear', self)
-        btn_operator.setGeometry(400, 400, 70, 30)
+        btn_operator.setGeometry(400, 350, 70, 30)
         btn_operator.clicked.connect(self.show_message)
 
         self.show()
@@ -69,41 +80,48 @@ class Calculator(QWidget):
         operators1 = ('+', '-', '*', '/')
         operators2 = ('=')
 
-        # print(next_input in operators2)
+        self.message_show.setText('')
 
         def show():
             self.text_shown.setText(current_result_text + str(next_input))
             self.status = 1
-            self.currentOperator = next_input
+            self.currentInput = next_input
 
         def result_operation_show():
             print(str(self.result) + str(next_input))
             self.text_shown.setText(str(self.result) + str(next_input))
             self.status = 1
-            self.currentOperator = next_input
+            self.currentInput = next_input
 
         def clear_show():
             self.text_shown.setText(str(next_input))
             self.status = 1
-            self.currentOperator = ''
+            self.currentInput = next_input
 
         def eval_show():
-            result = eval(current_result_text)
+            result = ''
+            try:
+                result = eval(current_result_text)
+            except SyntaxError:
+                self.message_show.setText('Wrong input')
+            except Exception as exception:
+                print(exception)
+                self.message_show.setText('Wrong input: ' + str(exception))
             self.result = result
             self.text_shown.setText(current_result_text + '=' + str(result))
             self.status = 2
-            self.currentOperator = '='
+            self.currentInput = '='
 
         def clear():
             self.text_shown.setText('0')
             self.status = 0
-            self.currentOperator = ''
+            self.currentInput = ''
 
         if next_input == 'clear':
             clear()
         else:
-            if self.currentOperator in operators:
-                if self.currentOperator in operators1:
+            if self.currentInput in operators:
+                if self.currentInput in operators1:
                     if next_input in operators:
                         return
                     else:
