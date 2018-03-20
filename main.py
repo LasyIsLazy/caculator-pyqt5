@@ -2,7 +2,6 @@
 
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QGridLayout
-from PyQt5.QtGui import QIcon
 
 
 class Calculator(QWidget):
